@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuickSort Educational Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 2rem; }
+        input, button { font-size: 1rem; padding: 0.5rem; }
+        #output, #benchmark { margin-top: 1rem; white-space: pre-wrap; }
+        #error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>QuickSort Demo</h1>
+    <p>Enter a comma-separated list of numbers:</p>
+    <input id="numbers" type="text" placeholder="e.g. 3,1,4,1,5" size="50" />
+    <button id="sortBtn">Sort</button>
+    <div id="error"></div>
+    <h2>Result</h2>
+    <div id="output"></div>
+    <h2>Benchmark</h2>
+    <div id="benchmark"></div>
+
+    <script>
+        // parse input string to number array, return null on invalid input
+        function parseNumbers(str) {
+            if (!str.trim()) return [];
+            const parts = str.split(/[,\s]+/);
+            const nums = [];
+            for (let p of parts) {
+                const n = Number(p);
+                if (isNaN(n)) return null;
+                nums.push(n);
+            }
+            return nums;
+        }
+
+        // QuickSort implementation (in-place)
+        function quickSort(arr, low=0, high=arr.length-1) {
+            if (low < high) {
+                const pi = partition(arr, low, high);
+                quickSort(arr, low, pi - 1);
+                quickSort(arr, pi + 1, high);
+            }
+        }
+
+        function partition(arr, low, high) {
+            const pivot = arr[high];
+            let i = low - 1;
+            for (let j = low; j < high; j++) {
+                if (arr[j] <= pivot) {
+                    i++;
+                    [arr[i], arr[j]] = [arr[j], arr[i]];
+                }
+            }
+            [arr[i+1], arr[high]] = [arr[high], arr[i+1]];
+            return i+1;
+        }
+
+        // benchmark two functions sorting copies of the array
+        function benchmark(arr) {
+            const original = arr.slice();
+            const result = {};
+
+            // QuickSort
+            let copy = original.slice();
+            let t0 = performance.now();
+            quickSort(copy);
+            let t1 = performance.now();
+            result.quick = { time: t1 - t0, sorted: copy.slice() };
+
+            // built-in
+            copy = original.slice();
+            t0 = performance.now();
+            copy.sort((a,b) => a - b);
+            t1 = performance.now();
+            result.builtin = { time: t1 - t0, sorted: copy.slice() };
+
+            return result;
+        }
+
+        document.getElementById('sortBtn').addEventListener('click', () => {
+            const input = document.getElementById('numbers').value;
+            const nums = parseNumbers(input);
+            const errDiv = document.getElementById('error');
+            const outDiv = document.getElementById('output');
+            const benchDiv = document.getElementById('benchmark');
+            errDiv.textContent = '';
+            outDiv.textContent = '';
+            benchDiv.textContent = '';
+
+            if (nums === null) {
+                errDiv.textContent = 'Invalid input. Please enter only numbers separated by commas or spaces.';
+                return;
+            }
+
+            // handle empty
+            if (nums.length === 0) {
+                outDiv.textContent = '[]';
+                benchDiv.textContent = '';
+                return;
+            }
+
+            const bm = benchmark(nums);
+            outDiv.textContent = 'QuickSort result: ' + JSON.stringify(bm.quick.sorted);
+            benchDiv.textContent = 
+                `QuickSort time: ${bm.quick.time.toFixed(3)} ms\n` +
+                `built-in sort time: ${bm.builtin.time.toFixed(3)} ms`;
+        });
+    </script>
+</body>
+</html>

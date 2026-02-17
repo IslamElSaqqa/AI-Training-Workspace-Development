@@ -1,0 +1,5 @@
+body { font-family: Arial, sans-serif; margin: 2rem; }
+input, button, select { font-size: 1rem; padding: 0.5rem; margin-right: 0.5rem; }
+#output, #benchmark, #fullBenchmark { margin-top: 1rem; white-space: pre-wrap; }
+#error { color: red; }
+#viz { border: 1px solid #ccc; display: block; margin-top: 1rem; }
